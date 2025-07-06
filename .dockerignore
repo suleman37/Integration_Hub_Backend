@@ -1,0 +1,42 @@
+# Ignore dependencies (they will be installed inside the container)
+node_modules
+npm-debug.log
+yarn.lock
+package-lock.json
+
+# Ignore build artifacts
+dist
+build
+*.tsbuildinfo
+
+# Ignore environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# Ignore logs and cache
+logs
+*.log
+log/
+cache/
+.npm/
+.next/
+out/
+
+# Ignore Docker files (except the necessary ones)
+.dockerignore
+docker-compose.yml
+
+# Ignore IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore Git and OS-generated files
+.git
+.gitignore
+.DS_Store
+Thumbs.db
+
