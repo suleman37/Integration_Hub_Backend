@@ -107,7 +107,7 @@ export class OdooCRM {
     }
 
     async actionFileRecord(eventData: any) {
-        if (!this.integration) {
+        if (!this.fileIntegration) {
             throw new AppError("Invalid integration", HttpStatusCode.BadRequest);
         }
 
@@ -119,23 +119,24 @@ export class OdooCRM {
         });
         await connectOdoo(odoo)
         const orderData: any = {}
-        const sourceFields: any[] = this.fileIntegration?.connectionFields ?? []
-        const targetFields: any[] = this.fileIntegration?.fileFields ?? []
+        const sourceFields: any[] = this.fileIntegration?.fileFields ?? []
+        const targetFields: any[] = this.fileIntegration?.connectionFields ?? []
 
         for (let i = 0; i < sourceFields.length; i++) {
             orderData[targetFields[i]?.name] = eventData[sourceFields[i]?.name]
         }
 
-
         try {
-            switch (this.integration.action) {
+            await executeOdoo(odoo, this.fileIntegration?.service ?? "", 'create', [[orderData]])
+            /*
+                switch (this.integration.action) {
                 case CRM_ACTION.Create: {
-                    await executeOdoo(odoo, this.integration?.targetModel ?? "", 'create', [[orderData]])
                 }
                 case CRM_ACTION.Update: {
                     await executeOdoo(odoo, this.integration?.targetModel ?? "", 'write', [[orderData]])
                 }
             }
+             */
         } catch (error) {
             throw error
         }
@@ -216,6 +217,8 @@ export class SaleForceCRM {
             orderData[targetFields[i]?.name] = eventData[sourceFields[i]?.name]
         }
 
+
+
         try {
             switch (this.integration.action) {
                 case CRM_ACTION.Create: {
@@ -223,7 +226,6 @@ export class SaleForceCRM {
                     if (!orderResult?.success) {
                         throw new AppError("Failed to create order.", HttpStatusCode.BadRequest);
                     }
-
                     break
                 }
                 case CRM_ACTION.Update: {
@@ -241,7 +243,7 @@ export class SaleForceCRM {
 
 
     async actionFileRecord(eventData: any) {
-        if (!this.integration) {
+        if (!this.fileIntegration) {
             throw new AppError("Invalid integration", HttpStatusCode.BadRequest);
         }
 
@@ -260,21 +262,23 @@ export class SaleForceCRM {
             oauth2: oauth2,
         });
         const orderData: any = {}
-        const sourceFields: any[] = this.fileIntegration?.connectionFields ?? []
-        const targetFields: any[] = this.fileIntegration?.fileFields ?? []
+        const sourceFields: any[] = this.fileIntegration?.fileFields ?? []
+        const targetFields: any[] = this.fileIntegration?.connectionFields ?? []
 
         for (let i = 0; i < sourceFields.length; i++) {
             orderData[targetFields[i]?.name] = eventData[sourceFields[i]?.name]
         }
 
         try {
-            switch (this.integration.action) {
-                case CRM_ACTION.Create: {
-                    const orderResult: any = await conn.sobject(this.integration?.targetModel ?? "").create(orderData);
-                    if (!orderResult?.success) {
-                        throw new AppError("Failed to create order.", HttpStatusCode.BadRequest);
-                    }
+            const orderResult: any = await conn.sobject(this.fileIntegration?.service ?? "").create(orderData);
+            if (!orderResult?.success) {
+                throw new AppError("Failed to create order.", HttpStatusCode.BadRequest);
+            }
 
+            /* 
+                switch (this.fileIntegration.action) {
+                case CRM_ACTION.Create: {
+ 
                     break
                 }
                 case CRM_ACTION.Update: {
@@ -285,6 +289,7 @@ export class SaleForceCRM {
                     break
                 }
             }
+             */
         } catch (error) {
             throw (error)
         }

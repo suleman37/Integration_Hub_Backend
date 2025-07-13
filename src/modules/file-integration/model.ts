@@ -50,6 +50,7 @@ const fileIntegrationSchema: Schema = new Schema(
             default: FILE_INTEGRATION_STATUS.Stop,
             required: true,
         },
+        fileData: mongoose.Schema.Types.Mixed,
         fileFields: mongoose.Schema.Types.Mixed,
         connectionFields: mongoose.Schema.Types.Mixed,
     },

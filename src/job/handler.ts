@@ -124,11 +124,8 @@ export async function fileIntegrationAddObject(payload: FileIntegrationJobPayloa
         },
     ]))?.[0];
 
-    if (fileIntegration.status !== INTEGRATION_STATUS.Active) {
-        throw new AppError(`${fileIntegration.name} Integeation is inactive id: ${fileIntegration.uuid}`, HttpStatusCode.BadRequest);
-    }
-
     const records = fileIntegration?.fileData
+
     let pending = records.length
     let completed = 0
     let failed = 0
@@ -143,7 +140,7 @@ export async function fileIntegrationAddObject(payload: FileIntegrationJobPayloa
         const crmClient = NewCrmClientFile(decriptedCredentials, fileIntegration)
         for (let i = 0; i < records.length; i++) {
             try {
-                crmClient?.actionFileRecord(records[i])
+                await crmClient?.actionFileRecord(records[i])
                 completed += 1
             } catch (error) {
                 failed += 1
