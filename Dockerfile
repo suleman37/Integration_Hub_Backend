@@ -22,7 +22,3 @@ RUN ls -la /driver-app-backend/dist || echo "Dist folder not found!"
 
 EXPOSE 3001
 CMD ["node", "/driver-app-backend/dist/server.js"]
-
-
-
-
