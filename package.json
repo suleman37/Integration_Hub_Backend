@@ -7,6 +7,8 @@
         "start": "node dist/server.js",
         "dev": "nodemon --exec ts-node src/server.ts",
         "vercel-build": "tsc",
+        "netlify-build": "tsc && npm run build:netlify",
+        "build:netlify": "mkdir -p netlify/functions/src && cp -r src/* netlify/functions/src/ && cp package*.json netlify/functions/ && cd netlify/functions && npm install --production",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
@@ -55,6 +57,7 @@
         "odoo-xmlrpc": "^1.0.8",
         "pg": "^8.13.3",
         "qs": "^6.14.0",
-        "zod": "^3.24.2"
+        "zod": "^3.24.2",
+        "serverless-http": "^3.2.0"
     }
 }
