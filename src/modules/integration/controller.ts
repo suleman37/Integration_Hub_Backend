@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { HttpStatusCode } from "../../config/auth";
 
 //Service
-import { createIntegration, deleteIntegration, getIntegration, getIntegrationInfo, getIntegrations, updateIntegration } from "./service";
+import { createIntegration, deleteIntegration, getIntegration, getIntegrationInfo, updateIntegration, getIntegrations } from "./service";
 
 //Validation
 import { addIntegrationSchema, updateIntegrationSchema } from "./validation";
@@ -12,22 +12,26 @@ import { addIntegrationSchema, updateIntegrationSchema } from "./validation";
 import { AppError } from "../../error";
 import { AuthRequest } from "../../middleware/auth";
 
+//Model
+import Integration from "./model";
+
 
 export const handlerGetIntegrations = async (request: AuthRequest, response: Response, next: NextFunction) => {
     try {
-        const { page, limit } = request.query
-        let tPage = 1
-        let tLimit = 20
+        const { page = 1, limit = 10 } = request.query;
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 10;
+        
+        console.log("=== DEBUG: Get Integrations ===");
+        console.log("UserID:", request?.user?.id);
+        console.log("User Role:", request?.user?.role);
+        console.log("Page:", pageNum, "Limit:", limitNum);
 
-        if (page) {
-            tPage = parseInt(page.toString())
-        }
+        // Use the service layer instead of direct database queries
+        const result = await getIntegrations(request?.user?.id as string, pageNum, limitNum);
 
-        if (limit) {
-            tLimit = parseInt(limit.toString())
-        }
-
-        const result = await getIntegrations(request?.user?.id as string, tPage, tLimit)
+        console.log("Service result:", result);
+        console.log("=== END DEBUG ===");
 
         response.status(HttpStatusCode.OK).json({
             message: "Successfully get the integrations",
@@ -35,7 +39,8 @@ export const handlerGetIntegrations = async (request: AuthRequest, response: Res
             data: result,
         });
     } catch (error) {
-        next(error)
+        console.error("Error in handlerGetIntegrations:", error);
+        next(error);
     }
 };
 

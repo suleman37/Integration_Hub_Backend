@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { INTEGRATION_STATUS, INTEGRATION_TYPE } from "../../config/auth";
+import { INTEGRATION_STATUS, INTEGRATION_TYPE, CRM_ACTION, CRM_EVENT } from "../../config/auth";
 
 export const addIntegrationSchema = z.object({
     name: z.string({ required_error: "Name is required" }).trim()
@@ -31,10 +31,12 @@ export const addIntegrationSchema = z.object({
         .max(45, "Target Connection  should be 1 to 45 characters in length."),
     sourceField: z.array(z.any()).min(1, "Atleast 1 source field is required"),
     targetField: z.array(z.any()).min(1, "Atleast 1 target field is required"),
-    event: z.string({ required_error: "Event is required." }).trim()
-        .min(1, "Event is required."),
-    action: z.string({ required_error: "Action is required" }).trim()
-        .min(1, "Action is required."),
+    event: z.enum([CRM_EVENT.OnCreate, CRM_EVENT.OnUpdate, CRM_EVENT.OnDelete], { 
+        message: "Event must be either 'onCreate', 'onUpdate', or 'onDelete'" 
+    }),
+    action: z.enum([CRM_ACTION.Create, CRM_ACTION.Update], { 
+        message: "Action must be either 'create' or 'update'" 
+    }),
     type: z.enum([INTEGRATION_TYPE.Scheduler, INTEGRATION_TYPE.Webhook], { "message": "Invalid integration type" }),
     startTime: z.string().optional(),
 });
@@ -81,10 +83,12 @@ export const updateIntegrationSchema = z.object({
         .optional(),
     targetField: z.array(z.any())
         .optional(),
-    event: z.string().trim()
-        .min(1, "Event is required.").optional(),
-    action: z.string().trim()
-        .min(1, "Action is required.").optional(),
+    event: z.enum([CRM_EVENT.OnCreate, CRM_EVENT.OnUpdate, CRM_EVENT.OnDelete], { 
+        message: "Event must be either 'onCreate', 'onUpdate', or 'onDelete'" 
+    }).optional(),
+    action: z.enum([CRM_ACTION.Create, CRM_ACTION.Update], { 
+        message: "Action must be either 'create' or 'update'" 
+    }).optional(),
     status: z.enum([INTEGRATION_STATUS.Active, INTEGRATION_STATUS.InActive])
         .optional(),
     type: z.enum([INTEGRATION_TYPE.Scheduler, INTEGRATION_TYPE.Webhook], { "message": "Invalid integration type" })

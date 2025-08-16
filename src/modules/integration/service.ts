@@ -10,9 +10,26 @@ import Integration from "./model";
 
 export const getIntegrations = async (userId: string, page: number, limit: number) => {
     try {
+        console.log("=== SERVICE DEBUG: getIntegrations ===");
+        console.log("UserId:", userId);
+        console.log("Page:", page, "Limit:", limit);
+        
         const offset = ((page - 1) * limit)
+        
+        // First check if there are any integrations at all
+        const allIntegrations = await Integration.find({});
+        console.log("Total integrations in database:", allIntegrations.length);
+        
+        // Check if there are integrations for this specific user
+        const userIntegrations = await Integration.find({ userId: userId });
+        console.log("Integrations for user", userId, ":", userIntegrations.length);
+        
         const integrations = await Integration.find({ userId: userId }).skip(offset).limit(limit).sort({ createdAt: -1 })
         const totalIntegrations = await Integration.countDocuments({ userId: userId });
+
+        console.log("Final query result:", integrations);
+        console.log("Total count for user:", totalIntegrations);
+        console.log("=== END SERVICE DEBUG ===");
 
         const meta = {
             page: page,
@@ -22,6 +39,7 @@ export const getIntegrations = async (userId: string, page: number, limit: numbe
 
         return { integrations, meta }
     } catch (error) {
+        console.error("Error in getIntegrations service:", error);
         throw error
     }
 }
