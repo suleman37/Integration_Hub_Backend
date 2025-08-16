@@ -21,16 +21,19 @@ dotenv.config();
 
 const app = express();
 
-const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath('/admin/queues');
+// Only initialize Bull Board in non-serverless environments
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    const serverAdapter = new ExpressAdapter();
+    serverAdapter.setBasePath('/admin/queues');
 
-createBullBoard({
-    queues: [new BullMQAdapter(connectionQueue), new BullMQAdapter(integrationQueue)],
-    serverAdapter,
-});
+    createBullBoard({
+        queues: [new BullMQAdapter(connectionQueue), new BullMQAdapter(integrationQueue)],
+        serverAdapter,
+    });
 
-//Job Dashboard
-app.use('/admin/queues', serverAdapter.getRouter());
+    //Job Dashboard
+    app.use('/admin/queues', serverAdapter.getRouter());
+}
 
 // Protects from large payload attacks
 app.use(express.json());
